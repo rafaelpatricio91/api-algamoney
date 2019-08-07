@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -33,7 +36,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler
 		//pega msg la do message.properties
 		String mensagemUsuario = messageSource.getMessage("mensagem.invalida", null, LocaleContextHolder.getLocale());
 		//pega msg padrao do spring
-		String mensagemDesenvolvedor = ex.getCause().toString();
+		String mensagemDesenvolvedor = ex.getCause() != null ? ex.getCause().toString() : ex.toString();
 		//add elas em uma lista
 		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
 		//passa a lista, headers, status e a requisição
@@ -63,6 +66,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler
 		}
 		
 		return erros;
+	}
+	//como n tem classe pra sobrescrever, passamos qual a excessão via @. é um array. poderiam ser passadas outras excessoes junto
+	@ExceptionHandler({ EmptyResultDataAccessException.class }) 
+	//	se nao quisessemos passar nenhuma msg, poderiamos passar o status aqui direto
+//	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request)
+	{
+		//pega msg la do message.properties
+		String mensagemUsuario = messageSource.getMessage("recurso.nao-encontrado", null, LocaleContextHolder.getLocale());
+		//pega msg padrao do spring
+		String mensagemDesenvolvedor = ex.toString();
+		//add elas em uma lista
+		List<Erro> erros = Arrays.asList(new Erro(mensagemUsuario, mensagemDesenvolvedor));
+		
+		//se passar o argumento do HttpHeaders como header dá erro aqui. tem que fazer esse new HttpHeaders()
+		return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
 	}
 	
 	public static class Erro 
