@@ -1,33 +1,32 @@
 package com.rafa.apialgamoney.model;
 
-import java.io.Serializable;
+import java.util.List;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-@Entity @Table(name="pessoa")
-public class Pessoa implements Serializable
+@Entity
+@Table(name="usuario")
+public class Usuario
 {
-	private static final long serialVersionUID = 1L;
-	
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long codigo;
-	@NotNull @Size(min=2, max=30)
 	private String nome;
-	@NotNull
-	private Boolean ativo;
+	private String email;
+	private String senha;
 	
-	@Embedded
-	private Endereco endereco;
+	@ManyToMany(fetch=FetchType.EAGER)
+	@JoinTable(name="usuario_permissao", joinColumns= @JoinColumn(name="codigo_usuario"), 
+			  							 inverseJoinColumns = @JoinColumn(name="codigo_permissao") )
+	private List<Permissao> permissoes;
 
 	public Long getCodigo()
 	{
@@ -49,30 +48,34 @@ public class Pessoa implements Serializable
 		this.nome = nome;
 	}
 
-	public Boolean getAtivo()
+	public String getEmail()
 	{
-		return ativo;
+		return email;
 	}
 
-	public void setAtivo(Boolean ativo)
+	public void setEmail(String email)
 	{
-		this.ativo = ativo;
+		this.email = email;
 	}
 
-	public Endereco getEndereco()
+	public String getSenha()
 	{
-		return endereco;
+		return senha;
 	}
 
-	public void setEndereco(Endereco endereco)
+	public void setSenha(String senha)
 	{
-		this.endereco = endereco;
+		this.senha = senha;
 	}
-	
-	@JsonIgnore @Transient
-	public boolean isInativo()
+
+	public List<Permissao> getPermissoes()
 	{
-		return !this.ativo;
+		return permissoes;
+	}
+
+	public void setPermissoes(List<Permissao> permissoes)
+	{
+		this.permissoes = permissoes;
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class Pessoa implements Serializable
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Pessoa other = (Pessoa) obj;
+		Usuario other = (Usuario) obj;
 		if (codigo == null)
 		{
 			if (other.codigo != null)
@@ -102,4 +105,6 @@ public class Pessoa implements Serializable
 			return false;
 		return true;
 	}
+	
+	
 }

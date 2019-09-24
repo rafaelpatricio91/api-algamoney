@@ -6,7 +6,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.rafa.apialgamoney.model.Categoria;
-import com.rafa.apialgamoney.model.repository.CategoriaRepository;
+import com.rafa.apialgamoney.repository.CategoriaRepository;
 
 @Service
 public class CategoriaService

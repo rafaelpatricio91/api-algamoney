@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rafa.apialgamoney.event.RecursoCriadoEvent;
 import com.rafa.apialgamoney.model.Categoria;
-import com.rafa.apialgamoney.model.repository.CategoriaRepository;
+import com.rafa.apialgamoney.repository.CategoriaRepository;
 import com.rafa.apialgamoney.service.CategoriaService;
 
 @RestController
@@ -38,6 +40,7 @@ public class CategoriaResource
 	private CategoriaService service;
 	
 	@GetMapping
+	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_CATEGORIA') and #oauth2.hasScope('read')")
 	public List<Categoria> listar()
 	{
 		return categorias.findAll();
@@ -45,6 +48,7 @@ public class CategoriaResource
 	}
 				 //HttpServletResponse habilita métodos para poder passar o locale na uri
 	@PostMapping //RequestBody associa os valores que estão vindo da requisição com o objeto informado
+	@PreAuthorize("hasAuthority('ROLE_CADASTRAR_CATEGORIA') and #oauth2.hasScope('write')")
 	public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categoria, HttpServletResponse response)
 	{
 		 Categoria categoriaSalva = categorias.save(categoria);
@@ -58,6 +62,7 @@ public class CategoriaResource
 	}
 	
 	@GetMapping("/{codigo}")
+	@PreAuthorize("hasAuthority('ROLE_PESQUISAR_CATEGORIA') and #oauth2.hasScope('read')")
 	public ResponseEntity<Categoria> buscarPeloCodigo(@PathVariable Long codigo)
 	{
 		Categoria categoria = categorias.findOne(codigo);
@@ -67,11 +72,13 @@ public class CategoriaResource
 	@DeleteMapping("/{codigo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT) //como n tem retorno, o responsestatus que vai dizer qual é a resposta
 										   //no content pois n há nada para retornar
+	@PreAuthorize("hasAuthority('ROLE_REMOVER_CATEGORIA') and #oauth2.hasScope('write')")
 	public void remover(@PathVariable Long codigo)
 	{
 		categorias.delete(codigo);
 	}
 	
+	@PreAuthorize("hasAuthority('ROLE_CADASTRAR_CATEGORIA') and #oauth2.hasScope('write')")
 	@PutMapping("/{codigo}")
 	public ResponseEntity<Categoria> atualizar(@PathVariable Long codigo, @Valid @RequestBody Categoria categoria)
 	{

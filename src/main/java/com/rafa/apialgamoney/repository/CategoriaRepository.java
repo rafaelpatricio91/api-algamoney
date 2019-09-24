@@ -1,4 +1,4 @@
-package com.rafa.apialgamoney.model.repository;
+package com.rafa.apialgamoney.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

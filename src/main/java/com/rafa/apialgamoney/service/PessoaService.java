@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.rafa.apialgamoney.model.Pessoa;
-import com.rafa.apialgamoney.model.repository.PessoaRepository;
+import com.rafa.apialgamoney.repository.PessoaRepository;
 
 @Service // componente spring
 public class PessoaService
@@ -33,7 +33,7 @@ public class PessoaService
 		pessoas.save(pessoaSalva);
 	}
 	
-	private Pessoa buscarPessoaPeloCodigo(Long codigo)
+	public Pessoa buscarPessoaPeloCodigo(Long codigo)
 	{
 		Pessoa pessoaSalva = pessoas.findOne(codigo); //pega a pessoa do banco e joga e pessoaSalva
 		if (pessoaSalva == null)
